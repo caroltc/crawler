@@ -10,5 +10,14 @@ import scrapy
 
 class MycrawlItem(scrapy.Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
+    title = scrapy.Field()
+    content = scrapy.Field()
+    website = scrapy.Field()
+    url = scrapy.Field()
+    cat_id = scrapy.Field()
+    cat_name = scrapy.Field()
+    is_ok = scrapy.Field()
+    pub_time = scrapy.Field()
+    url_hash = scrapy.Field()
+    crawl_time = scrapy.Field()
     pass
