@@ -7,9 +7,14 @@ class SqliteDriver():
     def __init__(self, settings):
         self.conn = sqlite3.connect(settings.DB_FILE)
         self.cursor = self.conn.cursor()
+
     def get_website(self):
         results = self.cursor.execute("select WEBSITE as website, count(*) as nums from crawl_data group by website").fetchall()
         return self.formatList(['website', 'num'], results)
+
+    def get_cat(self, website):
+        results = self.cursor.execute("select CAT_ID, CAT_NAME, count(*) from crawl_data where WEBSITE = '%s' group by cat_id" % website).fetchall()
+        return self.formatList(['cat_id', 'cat_name', 'num'], results)
 
     def formatList(self, fields, results):
         if results:

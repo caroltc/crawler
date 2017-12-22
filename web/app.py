@@ -13,10 +13,8 @@ def make_app():
         db = SqliteDriver(settings)
     handlers = [
     (r"/", MainHandler, dict(db=db)),
-    (r"/website/(\w+)", MainHandler),
-    (r"/cat/(\w+)/([0-9A-Za-z_-]+)", MainHandler),
-    (r"/detail/(\w+)", MainHandler),
-    (r"/search", MainHandler),
+    (r"/ajaxGetWebsite", WebsiteHandler, dict(db=db)),
+    (r"/ajaxGetCat/(\w+)", CatHandler, dict(db=db)),
     (r"/login", MainHandler),
     ]
     config = {"template_path":settings.TEMPLATE_PATH, "static_path":settings.ASSETS_PATH, "debug":True}
