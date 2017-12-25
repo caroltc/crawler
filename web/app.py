@@ -15,6 +15,8 @@ def make_app():
     (r"/", MainHandler, dict(db=db)),
     (r"/ajaxGetWebsite", WebsiteHandler, dict(db=db)),
     (r"/ajaxGetCat/(\w+)", CatHandler, dict(db=db)),
+    (r"/ajaxGetList/(\w+)/(\w+)/(\d+)/(\d+)", ListHandler, dict(db=db)),
+    (r"/showDetail/(\w+)", DetailHandler, dict(db=db)),
     (r"/login", MainHandler),
     ]
     config = {"template_path":settings.TEMPLATE_PATH, "static_path":settings.ASSETS_PATH, "debug":True}

@@ -2,16 +2,117 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>crawl web</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">  <title>crawl web</title>
   <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.js"></script>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <style type="text/css">
+    body{ margin: 0; padding: 0; font-size: 12px; }
+    table.gridtable {
+      font-family: verdana,arial,sans-serif;
+      font-size:11px;
+      color:#333333;
+      border-width: 1px;
+      border-color: #666666;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table.gridtable th {
+      border-width: 1px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #666666;
+      background-color: #dedede;
+    }
+    table.gridtable td {
+      border-width: 1px;
+      padding: 4px;
+      border-style: solid;
+      border-color: #666666;
+      background-color: #ffffff;
+    }
+    td#page_break {
+      padding: 0;
+      height: 30px;
+    }
+    button.pre_page, button.next_page{
+      height: 30px;
+      border: none;
+      width: 40%;
+      float:left;
+      background-color: #dddddd;
+    }
+    select.select_page{
+      height: 30px;
+      border: none;
+      width: 20%;
+      float:left;
+      background-color: #dddddd;
+      text-align: center;
+    }
+    select.filter_select {
+      height: 40px;
+      border: none;
+      width: 50%;
+      float:left;
+      background-color: #ffffff;
+      text-align: left;
+    }    
+    input.search_input {
+      height: 40px;
+      border: none;
+      width: 50%;
+      float:left;
+      text-align: center;
+    }
+    input.search_button {
+      height: 40px;
+      border: none;
+      width: 49.8%;
+      float:left;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
  <div id="app">
- <div><span style="display: inline-block; background-color: #777; color:#ffffff; padding: 4px 8px; font-size: 12px;" v-for="item in websites" @click="setWebsite(item.website)"><% item.website %> (<% item.num %>)</span></div>
-<br>
-<br>
- <div><span style="display: inline-block; background-color: #999; color:#ffffff; padding: 4px 8px; font-size: 12px;" v-for="item in cats" @click="setCat(item.cat_id)"><% item.cat_name %> (<% item.num %>)</span></div>
+    <div>
+        <select class="filter_select" v-model="select_website">
+            <option value="">select website</option>
+            <option v-for="item in websites" :value="item.website"><% item.website %> (<% item.num %>)</option>
+        </select>
+        <select class="filter_select" v-model="select_cat">
+            <option value="none">select cat</option>
+            <option v-for="item in cats" :value="item.cat_id"><% item.cat_name %> (<% item.num %>)</option>
+        </select>
+    </div>
+    <div style="clear: both; width:100%;">
+        <input type="text" class="search_input" v-model="search_keyword" placeholder="keyword...">
+        <input type="button" class="search_button" value="Search" @click="getList(true)">
+    </div>
+    <div>
+      <table class="gridtable">
+        <thead>
+            <tr><th style="width:60%">TITLE</th><th>INFO</th><th>CRAWL_TIME</th></tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item,index) in data_list">
+                <td><a :href="urls.detail_url.replace('%url_hash', item.url_hash)" target="_blank"><% (current_page-1)*page_size+index+1 %>.<% item.title %></a></td>
+                <td><% item.cat_name %>/<% item.pub_time %>/<% item.is_ok == 1 ? 'Y' : 'N' %></td>
+                <td><% item.crawl_time %></td>
+            </tr>          
+        </tbody>
+        <tfoot>
+            <tr v-if="data_num === 0"><td colspan="5" style="text-align: center">No results!</td></tr>
+            <tr v-if="total_pages > 1"><td colspan="5" id="page_break">
+                <button class="pre_page" @click="jumpPage(current_page-1)">Pre Page</button>
+                <select class="select_page" v-model="current_page" @change="jumpPage(current_page)"><option v-for="page in show_pages" :value="page"><% page %></option></select>
+                <button class="next_page" @click="jumpPage(current_page+1)">Next Page</button>
+            </td></tr>
+        </tfoot>
+      </table>
+    </div>
+ </div>
  <script>
     var vm = new Vue({
       delimiters: ['<%', '%>'],
@@ -19,12 +120,21 @@
       data:{
         urls:{
           get_website:'/ajaxGetWebsite',
-          get_cat:'/ajaxGetCat/%website'
+          get_cat:'/ajaxGetCat/%website',
+          get_list:'/ajaxGetList/%website/%cat_id/%start/%pagesize?keyword=%keyword',
+          detail_url:'/showDetail/%url_hash',
         },
         websites:[],
         select_website:'',
-        select_cat:'',
-        cats:[]
+        select_cat:'none',
+        cats:[],
+        data_list:[],
+        page_size:20,
+        current_page:1,
+        data_num:0,
+        total_pages:0,
+        show_pages:[],
+        search_keyword:''
       },
       mounted: function(){
         var _this = this;
@@ -33,10 +143,6 @@
         })
       },
       methods: {
-          setWebsite: function(website) {
-              this.select_website = website;
-              this.getCat(website);
-          },
           setCat: function(cat) {
               this.select_cat = cat;
           },
@@ -45,6 +151,42 @@
               this.ajaxGet(this.urls.get_cat.replace('%website', website),{}, function(data){
                   _this.cats = data.result;
               })
+          },
+          getList: function(jump_first_page) {
+              var _this = this;
+              if (this.select_website == "") {
+                  alert('select website first');
+                  return false;
+              }
+              if (this.select_cat == "none" && this.search_keyword == "") {
+                  alert('keyword is empty');
+                  return false;
+              }
+              if (jump_first_page) {
+                this.current_page = 1;
+              }
+              var start = (this.current_page - 1) * this.page_size;
+              this.ajaxGet(this.urls.get_list.replace('%website', this.select_website).replace('%cat_id', this.select_cat).replace('%start', start).replace('%pagesize', this.page_size).replace('%keyword', this.search_keyword),{}, function(data){
+                  _this.data_list = data.result.list;
+                  _this.data_num = data.result.total;
+                  _this.getPages();
+              })
+          },
+          getPages: function() {
+              this.total_pages = (this.data_num % this.page_size == 0) ? parseInt(this.data_num / this.page_size) : parseInt(this.data_num / this.page_size) + 1;
+              this.show_pages = [];
+              for (var i = 1; i <= this.total_pages; i++) {
+                  this.show_pages.push(i);
+              }
+          },
+          jumpPage: function(page) {
+            if (page < 1 || page > this.total_pages) {
+                return false;
+            }
+            if (page != this.current_page) {
+                this.current_page = page;
+            }
+            this.getList(false);
           },
           apiRequest: function(obj) {
               obj.data = (obj.data == undefined) ? {} : obj.data;
@@ -94,6 +236,22 @@
                     callback(data);
                 }
               });
+          }
+      },
+      watch: {
+          select_website: function(newVal, oldVal) {
+            this.cats = [];
+            this.select_cat = "none";
+            if (newVal != "") {
+                this.getCat(newVal);
+            }
+          },
+          select_cat: function(newVal, oldVal) {
+            this.data_list = [];
+            this.data_num = 0;
+            if (newVal !== "") {
+                this.getList(true);
+            }
           }
       }
     })
