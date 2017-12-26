@@ -17,9 +17,9 @@ def make_app():
     (r"/ajaxGetCat/(\w+)", CatHandler, dict(db=db)),
     (r"/ajaxGetList/(\w+)/(\w+)/(\d+)/(\d+)", ListHandler, dict(db=db)),
     (r"/showDetail/(\w+)", DetailHandler, dict(db=db)),
-    (r"/login", MainHandler),
+    (r"/login", LoginHandler, dict(db=db)),
     ]
-    config = {"template_path":settings.TEMPLATE_PATH, "static_path":settings.ASSETS_PATH, "debug":True}
+    config = {"template_path":settings.TEMPLATE_PATH, "static_path":settings.ASSETS_PATH, "cookie_secret":settings.COOKIE_SECRET, "login_url": "/login", "debug":True}
     return tornado.web.Application(handlers, **config)
 
 if __name__ == '__main__':

@@ -7,6 +7,8 @@ import tornado.escape
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, db):
         self.db = db
+    def get_current_user(self):
+        return self.get_secure_cookie("crawl_cookie")
 
     def response_ok(self, data = {}):
         return self.response_json('OK', data, '200')
