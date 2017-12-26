@@ -31,8 +31,8 @@ class SqliteDriver():
         return {"list":list, "total":total}
 
     def get_detail(self, url_hash):
-        results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, CONTENT, IS_OK  from crawl_data where  URL_HASH = '%s'" % url_hash).fetchall()
-        datas = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'content', 'is_ok'], results)
+        results = self.cursor.execute("select WEBSITE, URL, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, CONTENT, IS_OK  from crawl_data where  URL_HASH = '%s'" % url_hash).fetchall()
+        datas = self.formatList(['website', 'url', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'content', 'is_ok'], results)
         if len(datas) > 0:
             return datas[0]
         return []

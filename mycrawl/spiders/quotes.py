@@ -23,7 +23,7 @@ class QuotesScrapy(scrapy.Spider):
             item['content'] = quote.extract()
             item['website'] = self.name
             item['url'] = quote.xpath('span[@class="text"]/text()').extract_first()
-            item['cat_id'] = 0
+            item['cat_id'] = '0'
             item['cat_name'] = 'Default'
             item['is_ok'] = 1
             item['pub_time'] = ''
