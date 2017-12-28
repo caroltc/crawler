@@ -42,7 +42,6 @@ class BaseScrapy(scrapy.Spider):
         self.current_page = self.current_page + 1
         if self.max_page < self.current_page:
             return None
-        next_page_url = self.get_next_page_url(response)
         return self.get_next_page_url(response)
 
     def parse_post(self, response):
