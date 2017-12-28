@@ -23,7 +23,7 @@ class CaolScrapy(base.BaseScrapy):
     def get_next_page_url(self, response):
         next_page = response.xpath(u'//*[contains(text(), "下一頁")]/@href').extract()
         if next_page:
-            return self.host+self.start_url+next_page[0]
+            return self.host+'/'+next_page[0]
         return None
 
     def get_page_title(self, response):
