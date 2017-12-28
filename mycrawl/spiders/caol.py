@@ -13,7 +13,12 @@ class CaolScrapy(base.BaseScrapy):
     url_keywords = 'htm_data'
 
     def get_item_urls(self, response):
-        return response.xpath(u'//*[contains(@class, "tr3 t_one")]//h3//@href').extract()
+        urls = response.xpath(u'//*[contains(@class, "tr3 t_one")]//h3//@href').extract()
+        if urls:
+            for i in urls[:]:
+                urls[i] = self.host +'/'+ urls[i]
+            return urls
+        return []
 
     def get_next_page_url(self, response):
         next_page = response.xpath(u'//*[contains(text(), "下一頁")]/@href').extract()[0]
