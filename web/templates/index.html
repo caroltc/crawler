@@ -103,7 +103,8 @@
             </tr>          
         </tbody>
         <tfoot>
-            <tr v-if="data_num === 0"><td colspan="5" style="text-align: center">No results!</td></tr>
+            <tr v-if="data_num === 0 && !is_loading"><td colspan="5" style="text-align: center">No results!</td></tr>
+            <tr v-if="is_loading"><td colspan="5" style="text-align: center">loading...</td></tr>
             <tr v-if="total_pages > 1"><td colspan="5" id="page_break">
                 <button class="pre_page" @click="jumpPage(current_page-1)">Pre Page</button>
                 <select class="select_page" v-model="current_page" @change="jumpPage(current_page)"><option v-for="page in show_pages" :value="page"><% page %></option></select>
@@ -134,7 +135,8 @@
         data_num:0,
         total_pages:0,
         show_pages:[],
-        search_keyword:''
+        search_keyword:'',
+        is_loading:false
       },
       mounted: function(){
         var _this = this;
@@ -190,6 +192,8 @@
           },
           apiRequest: function(obj) {
               obj.data = (obj.data == undefined) ? {} : obj.data;
+              this.is_loading = true
+              var _this = this;
               var request_obj = {
                   url: obj.url,
                   type: obj.type,
@@ -206,6 +210,9 @@
                       } else if (data.status == 'FAIL') {
                           alert(data.msg);
                       }
+                  },
+                  complete: function() {
+                    _this.is_loading = false;
                   },
                   error: function () {
                       alert('请求错误');
