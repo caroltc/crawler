@@ -190,6 +190,12 @@
             }
             this.getList(false);
           },
+          resetPage: function() {
+              this.current_page = 1;
+              this.data_num = 0;
+              this.total_pages = 0;
+              this.show_pages = [];
+          },
           apiRequest: function(obj) {
               obj.data = (obj.data == undefined) ? {} : obj.data;
               this.is_loading = true
@@ -249,13 +255,14 @@
           select_website: function(newVal, oldVal) {
             this.cats = [];
             this.select_cat = "none";
+            this.resetPage();
             if (newVal != "") {
                 this.getCat(newVal);
             }
           },
           select_cat: function(newVal, oldVal) {
             this.data_list = [];
-            this.data_num = 0;
+            this.resetPage();
             if (newVal !== "") {
                 this.getList(true);
             }
