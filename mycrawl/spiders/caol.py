@@ -37,5 +37,5 @@ class CaolScrapy(base.BaseScrapy):
         ptime = ''.join(ptime)
         ptime = re.findall(r'(\d{4}-\d{2}-\d{2}\s*\d{2}:\d{2})', ptime)
         if ptime:
-            ptime = ptime[0]
+            return ptime[0]
         return ''
