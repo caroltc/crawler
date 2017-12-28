@@ -18,7 +18,7 @@ class ListHandler(BaseHandler.BaseHandler):
         reload(sys)
         sys.setdefaultencoding('utf8')
         keyword = self.get_argument('keyword', 'null')
-        if keyword != 'null' or keyword != '':
+        if keyword != 'null' and keyword != '':
             datas = self.db.get_search_list(website, unicode(keyword), start, pagesize)
         else:
             datas = self.db.get_list(website, cat_id, start, pagesize)
