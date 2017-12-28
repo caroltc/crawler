@@ -15,7 +15,7 @@ class CaolScrapy(base.BaseScrapy):
     def get_item_urls(self, response):
         urls = response.xpath(u'//*[contains(@class, "tr3 t_one")]//h3//@href').extract()
         if urls:
-            for i in urls[:]:
+            for i in range(len(urls)):
                 urls[i] = self.host +'/'+ urls[i]
             return urls
         return []
