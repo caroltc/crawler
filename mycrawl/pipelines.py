@@ -8,17 +8,13 @@ import hashlib
 import sqlite3
 import time
 import os
+import mycrawl.drivers.sqlite
 
 class MycrawlPipeline(object):
     def process_item(self, item, spider):
-    	tdb = sqlite3.connect("mycrawl/data.db")
-    	cursor = tdb.cursor()
-    	save_data = self.check_item_exist(item, cursor)
-    	if save_data:
-            self.save_item(save_data, cursor)
-        tdb.commit()
-        cursor.close()
-        tdb.close()
+        db_handle = mycrawl.drivers.sqlite.SqliteDriver()
+        db_handle.save_item(item)
+        db_handle.close()
         return item
 
     def check_item_exist(self, item, cursor):

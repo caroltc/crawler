@@ -5,7 +5,9 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-from scrapy import signals
+from scrapy import signals, http
+import mycrawl.drivers.sqlite 
+import logging
 
 
 class MycrawlSpiderMiddleware(object):
@@ -54,3 +56,19 @@ class MycrawlSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+class DownloadMiddleware():
+
+    def __init__(self):
+        self.db_handle = mycrawl.drivers.sqlite.SqliteDriver()
+        return None
+
+    def process_request(self, request, spider):
+        if spider.url_keywords in request.url:
+            if self.db_handle.check_item_available(request.url):
+                return None
+            else:
+                logging.warning('URL_REPEAT '+request.url)
+                return http.Response(request.url, body='repeat')
+        else:
+            return None

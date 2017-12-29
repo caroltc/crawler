@@ -52,21 +52,33 @@ class BaseScrapy(scrapy.Spider):
     def parse_post(self, response):
         self.is_ok = 1
         item = MycrawlItem()
-        item['title'] = self.get_page_title(response)
-        item['content'] = self.get_page_content(response)
-        item['website'] = self.name
-        item['url'] = response.url
-        item['cat_id'] = self.cat_id
-        item['cat_name'] = self.cat_name
-        item['is_ok'] = self.is_ok
-        item['pub_time'] = self.get_page_pub_time(response)
+        if response.body == 'repeat':
+            item['title'] = ''
+            item['content'] = ''
+            item['website'] = self.name
+            item['url'] = response.url
+            item['cat_id'] = self.cat_id
+            item['cat_name'] = self.cat_name
+            item['is_ok'] = self.is_ok
+            item['pub_time'] = ''
+        else:
+            item['title'] = self.get_page_title(response)
+            item['content'] = self.get_page_content(response)
+            item['website'] = self.name
+            item['url'] = response.url
+            item['cat_id'] = self.cat_id
+            item['cat_name'] = self.cat_name
+            item['is_ok'] = self.is_ok
+            item['pub_time'] = self.get_page_pub_time(response)
+
         yield item
 
-    def handle_error(self, error):
-        if self.url_keywords in url:
-            yield scrapy.Request(url, callback=self.parse_post, errback=self.handle_error, dont_filter=True)
-        else:
-            yield scrapy.Request(next_page, callback=self.parse, errback=self.handle_error, dont_filter=True)
+    def handle_error(self, failure):
+        print 'LOOK', failure.value
+        # if self.url_keywords in response.url:
+        #     yield scrapy.Request(response.url, callback=self.parse_post, errback=self.handle_error, dont_filter=True)
+        # else:
+        #     yield scrapy.Request(next_page, callback=self.parse, errback=self.handle_error, dont_filter=True)
 
     def getImgContent(self, imgs):
         if len(imgs) < 1:
