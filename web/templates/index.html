@@ -82,7 +82,7 @@
             <option v-for="item in websites" :value="item.website"><% item.website %> (<% item.num %>)</option>
         </select>
         <select class="filter_select" v-model="select_cat">
-            <option value="none">select cat</option>
+            <option value="none">Collect</option>
             <option v-for="item in cats" :value="item.cat_id"><% item.cat_name %> (<% item.num %>)</option>
         </select>
     </div>
@@ -127,7 +127,7 @@
         },
         websites:[],
         select_website:'',
-        select_cat:'none',
+        select_cat:'',
         cats:[],
         data_list:[],
         page_size:20,
@@ -158,10 +158,6 @@
               var _this = this;
               if (this.select_website == "") {
                   alert('select website first');
-                  return false;
-              }
-              if (this.select_cat == "none" && this.search_keyword == "") {
-                  alert('keyword is empty');
                   return false;
               }
               if (jump_first_page) {

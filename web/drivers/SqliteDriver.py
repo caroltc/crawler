@@ -31,11 +31,34 @@ class SqliteDriver():
         return {"list":list, "total":total}
 
     def get_detail(self, url_hash):
-        results = self.cursor.execute("select WEBSITE, URL, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, CONTENT, IS_OK  from crawl_data where  URL_HASH = '%s'" % url_hash).fetchall()
-        datas = self.formatList(['website', 'url', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'content', 'is_ok'], results)
+        results = self.cursor.execute("select ID, WEBSITE, URL, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, CONTENT, IS_OK  from crawl_data where  URL_HASH = '%s'" % url_hash).fetchall()
+        datas = self.formatList(['id', 'website', 'url', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'content', 'is_ok'], results)
         if len(datas) > 0:
             return datas[0]
         return []
+
+    def addCollection(self, data_id, website, cat_id):
+        count_results = self.cursor.execute("select count(*) from collection where DATA_ID = '%s'" % str(data_id)).fetchall()
+        print count_results
+        if int(count_results[0][0]) > 0:
+            return False
+        self.cursor.execute("INSERT INTO collection(DATA_ID, WEBSITE, CAT_ID) VALUES('%s', '%s', '%s')" % (str(data_id), website, cat_id))
+        self.conn.commit()
+
+        return True
+
+    def get_collection_list(self, website, start, pagesize):
+        count_results = self.cursor.execute("select count(*) from collection where WEBSITE = '%s'" % website).fetchall()
+        ids_result = self.cursor.execute("select ID from collection where WEBSITE = '%s' order by ID desc limit %s,%s" % (website,start,pagesize)).fetchall()
+        ids_list = []
+        list = []
+        if ids_result:
+            for i in range(len(ids_result)):
+                ids_list.append(str(ids_result[i][0]))
+            results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK from crawl_data where ID IN ('%s')" % ','.join(ids_list)).fetchall()
+            list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok'], results)
+        total = count_results[0][0]
+        return {"list":list, "total":total}
 
     def formatList(self, fields, results):
         if results:

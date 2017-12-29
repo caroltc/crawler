@@ -11,6 +11,7 @@ class MainHandler(BaseHandler.BaseHandler):
         self.render('index.html')
 
 class DetailHandler(BaseHandler.BaseHandler):
+    @authenticated
     def get(self, url_hash):
         datas = self.db.get_detail(url_hash)
         if len(datas) == 0:
@@ -30,3 +31,12 @@ class LoginHandler(BaseHandler.BaseHandler):
         else:
             self.set_secure_cookie("crawl_cookie", check_hash)
             self.redirect("/")
+
+class CollectionHandler(BaseHandler.BaseHandler):
+    @authenticated
+    def get(self, website, cat_id, data_id):
+        result = self.db.addCollection(data_id, website, cat_id)
+        if result:
+            self.write('Success')
+        else:
+            self.write('Failed! Already Collected!')

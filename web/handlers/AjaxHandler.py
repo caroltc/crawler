@@ -20,6 +20,8 @@ class ListHandler(BaseHandler.BaseHandler):
         keyword = self.get_argument('keyword', 'null')
         if keyword != 'null' and keyword != '':
             datas = self.db.get_search_list(website, unicode(keyword), start, pagesize)
+        elif cat_id == 'none':
+            datas = self.db.get_collection_list(website, start, pagesize)
         else:
             datas = self.db.get_list(website, cat_id, start, pagesize)
         return self.response_ok(datas)
