@@ -25,7 +25,10 @@ class DoubanScrapy(base.BaseScrapy):
         return response.xpath('//h1//text()').extract_first()
 
     def get_page_content(self, response):
-        return response.xpath('//div[@id="link-report"]').extract_first()
+        if self.only_image == 1:
+            return self.getImgContent(response.xpath('//div[@id="link-report"]//img//@src').extract())
+        else:
+            return response.xpath('//div[@id="link-report"]').extract_first()
 
     def get_page_pub_time(self, response):
         return response.xpath('//h3//span[@class="color-green"]//text()').extract_first()

@@ -13,6 +13,8 @@ class BaseScrapy(scrapy.Spider):
     cat_id = ''
     cat_name = ''
     url_keywords = ''
+    only_image = 0
+    is_ok = 1
 
     def start_requests(self):
         reload(sys)
@@ -26,6 +28,8 @@ class BaseScrapy(scrapy.Spider):
         self.cat_name = self.settings.get('CAT_NAME', self.cat_name)
         self.cat_name = unicode(self.cat_name)
         self.url_keywords = self.settings.get('URL_KEYWORDS', self.url_keywords)
+        self.only_image = self.settings.get('ONLY_IMAGE', self.only_image)
+        self.only_image = int(self.only_image)
         yield scrapy.Request(self.start_url, callback=self.parse)
 
     def parse(self, response):
@@ -53,7 +57,7 @@ class BaseScrapy(scrapy.Spider):
         item['url'] = response.url
         item['cat_id'] = self.cat_id
         item['cat_name'] = self.cat_name
-        item['is_ok'] = self.get_page_is_ok(response)
+        item['is_ok'] = self.is_ok
         item['pub_time'] = self.get_page_pub_time(response)
         yield item
 
@@ -63,9 +67,9 @@ class BaseScrapy(scrapy.Spider):
         else:
             yield scrapy.Request(next_page, callback=self.parse, errback=self.handle_error, dont_filter=True)
 
-    def getImgContent(self, content):
-        imgs = content.xpath("//img//@src").extract()
+    def getImgContent(self, imgs):
         if len(imgs) < 1:
+            self.is_ok = 0
             return ''
         html_content = '<div class="client_show_images">'
         for i in range(len(imgs)):
@@ -95,6 +99,3 @@ class BaseScrapy(scrapy.Spider):
 
     def get_page_url(self, response):
         return response.url
-
-    def get_page_is_ok(self, response):
-        return 1
