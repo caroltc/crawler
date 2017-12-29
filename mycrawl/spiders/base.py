@@ -17,6 +17,7 @@ class BaseScrapy(scrapy.Spider):
     def start_requests(self):
         reload(sys)
         sys.setdefaultencoding('utf8')
+        self.getCommandParams();
         self.start_url = self.settings.get('START_URL', self.start_url)
         self.start_url = self.host+self.start_url
         self.max_page = self.settings.get('MAX_PAGE', self.max_page)
@@ -61,6 +62,18 @@ class BaseScrapy(scrapy.Spider):
             yield scrapy.Request(url, callback=self.parse_post, errback=self.handle_error, dont_filter=True)
         else:
             yield scrapy.Request(next_page, callback=self.parse, errback=self.handle_error, dont_filter=True)
+
+    def getImgContent(self, content):
+        imgs = content.xpath("//img//@src").extract()
+        if len(imgs) < 1:
+            return ''
+        html_content = '<div class="client_show_images">'
+        for i in range(len(imgs)):
+            html_content =  html_content + '<p><img src="' +imgs[i]+ '"/></p>'
+        return html_content+'</div>'
+
+    def getCommandParams(self):
+        return ''
 
     def get_item_urls(self, response):
         return []

@@ -11,6 +11,7 @@ class CaolScrapy(base.BaseScrapy):
     cat_id = '7'
     cat_name = '技术讨论区'
     url_keywords = 'htm_data'
+    only_image = 0
 
     def get_item_urls(self, response):
         urls = response.xpath(u'//*[contains(@class, "tr3 t_one")]//h3//@href').extract()
@@ -30,7 +31,11 @@ class CaolScrapy(base.BaseScrapy):
         return response.xpath(u'//*[@class="tr1 do_not_catch"]//h4/text()').extract()[0]
 
     def get_page_content(self, response):
-        return response.xpath(u'(//div[@class="tpc_content do_not_catch"])[1]').extract()[0]
+        content = response.xpath(u'(//div[@class="tpc_content do_not_catch"])[1]')
+        if self.only_image == 1:
+            return self.getImgContent(content)
+        else:
+            return content.extract()[0]
 
     def get_page_pub_time(self, response):
         ptime = response.xpath(u'(//*[@class="tr1"])[1]//*[@class="tipad"]//text()').extract()
@@ -39,3 +44,9 @@ class CaolScrapy(base.BaseScrapy):
         if ptime:
             return ptime[0]
         return ''
+
+    def getCommandParams(self):
+        self.only_image = self.settings.get('ONLY_IMAGE', self.only_image)
+        self.only_image = int(self.only_image)
+        return ''
+
