@@ -31,7 +31,9 @@ class CaolScrapy(base.BaseScrapy):
 
     def get_page_content(self, response):
         if self.only_image == 1:
-            return self.getImgContent(response.xpath(u'(//div[@class="tpc_content do_not_catch"])[1]//img//@src').extract())
+            imgs_a =  response.xpath(u'(//div[@class="tpc_content do_not_catch"])[1]//img//@src').extract()
+            imgs_b = response.xpath(u'(//div[@class="tpc_content do_not_catch"])[1]//input[@type="image"]//@src').extract()
+            return self.getImgContent(imgs_a+imgs_b)
         else:
             return response.xpath(u'(//div[@class="tpc_content do_not_catch"])[1]').extract_first()
 
