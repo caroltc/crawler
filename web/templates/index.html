@@ -7,13 +7,13 @@
   <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.js"></script>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
   <style type="text/css">
-    body{ margin: 0; padding: 0; font-size: 12px; }
+    *{ margin: 0; padding: 0; font-size: 12px; }
     table.gridtable {
       font-family: verdana,arial,sans-serif;
       font-size:11px;
-      color:#333333;
+      color:#cccccc;
       border-width: 1px;
-      border-color: #666666;
+      border-color: #cccccc;
       border-collapse: collapse;
       width: 100%;
     }
@@ -21,14 +21,14 @@
       border-width: 1px;
       padding: 8px;
       border-style: solid;
-      border-color: #666666;
+      border-color: #eeeeee;
       background-color: #dedede;
     }
     table.gridtable td {
       border-width: 1px;
       padding: 4px;
       border-style: solid;
-      border-color: #666666;
+      border-color: #eeeeee;
       background-color: #ffffff;
     }
     td#page_break {
@@ -36,14 +36,14 @@
       height: 30px;
     }
     button.pre_page, button.next_page{
-      height: 30px;
+      height: 50px;
       border: none;
       width: 40%;
       float:left;
       background-color: #dddddd;
     }
     select.select_page{
-      height: 30px;
+      height: 50px;
       border: none;
       width: 20%;
       float:left;
@@ -72,6 +72,18 @@
       float:left;
       text-align: center;
     }
+    .item-title {
+      margin: 10px 0;
+    }
+    .item-title a{
+      font-size: 14px;
+      display: block;
+      color:#777777;
+      text-decoration: none;
+    }
+    .item-detail {
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -92,20 +104,21 @@
     </div>
     <div>
       <table class="gridtable">
-        <thead>
-            <tr><th style="width:60%">TITLE</th><th>INFO</th><th>CRAWL_TIME</th></tr>
-        </thead>
         <tbody>
             <tr v-for="(item,index) in data_list">
-                <td><a :href="urls.detail_url.replace('%url_hash', item.url_hash)" target="_blank"><% (current_page-1)*page_size+index+1 %>.<% item.title %></a></td>
-                <td><% item.cat_name %>/<% item.pub_time %>/<% item.is_ok == 1 ? 'Y' : 'N' %></td>
-                <td><% item.crawl_time %></td>
+                <td>
+                  <p class="item-title"><a :href="urls.detail_url.replace('%url_hash', item.url_hash)" target="_blank"><% (current_page-1)*page_size+index+1 %>.<% item.title %></a></p>
+                  <p class="item-detail">
+                    <span style="float:left"><% item.cat_name %> <% item.pub_time %></span>
+                    <span style="float:right"><% item.crawl_time %><% item.is_ok == 1 ? 'Y' : 'N' %><span>
+                  </p>
+                </td>
             </tr>          
         </tbody>
         <tfoot>
-            <tr v-if="data_num === 0 && !is_loading"><td colspan="5" style="text-align: center">No results!</td></tr>
-            <tr v-if="is_loading"><td colspan="5" style="text-align: center">loading...</td></tr>
-            <tr v-if="total_pages > 1"><td colspan="5" id="page_break">
+            <tr v-if="data_num === 0 && !is_loading"><td style="text-align: center">No results!</td></tr>
+            <tr v-if="is_loading"><td style="text-align: center">loading...</td></tr>
+            <tr v-if="total_pages > 1"><td id="page_break">
                 <button class="pre_page" @click="jumpPage(current_page-1)">Pre Page</button>
                 <select class="select_page" v-model="current_page" @change="jumpPage(current_page)"><option v-for="page in show_pages" :value="page"><% page %></option></select>
                 <button class="next_page" @click="jumpPage(current_page+1)">Next Page</button>
