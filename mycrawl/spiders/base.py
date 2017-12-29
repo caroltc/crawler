@@ -50,6 +50,7 @@ class BaseScrapy(scrapy.Spider):
         return self.get_next_page_url(response)
 
     def parse_post(self, response):
+        self.is_ok = 1
         item = MycrawlItem()
         item['title'] = self.get_page_title(response)
         item['content'] = self.get_page_content(response)
