@@ -18,6 +18,9 @@ def make_app():
     (r"/ajaxGetList/(\w+)/(\w+)/(\d+)/(\d+)", ListHandler, dict(db=db)),
     (r"/showDetail/(\w+)", DetailHandler, dict(db=db)),
     (r"/addCollection/(\w+)/(\w+)/(\d+)", CollectionHandler, dict(db=db)),
+    (r"/upload", UploadHandler, dict(db=db)),
+    (r"/download/list", DownloadHandler, dict(db=db)),
+    (r"/download/do", DownloadDoHandler, dict(db=db)),
     (r"/login", LoginHandler, dict(db=db)),
     ]
     config = {"template_path":settings.TEMPLATE_PATH, "static_path":settings.ASSETS_PATH, "cookie_secret":settings.COOKIE_SECRET, "login_url": "/login", "debug":True}
