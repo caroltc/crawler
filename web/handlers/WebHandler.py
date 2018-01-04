@@ -84,6 +84,8 @@ class DownloadHandler(BaseHandler.BaseHandler):
         self.write('<ol>')
         for i in os.walk(dir):
             for k in i[2]:
+                if k.startswith('.') or k.startswith('..'):
+                    continue
                 fsize = os.path.getsize(dir + '/'+k)
                 fsize = fsize/float(1024)
                 if fsize > 1024:
