@@ -43,26 +43,18 @@ class CollectionHandler(BaseHandler.BaseHandler):
         else:
             self.write('Failed! Already Collected!')
 
-class UploadHandler(BaseHandler.BaseHandler):
+class DownloadHandler(BaseHandler.BaseHandler):
     @authenticated
     def get(self):
-        self.write('''
-<html>
-  <head><title>Upload File</title></head>
-  <body>
-    <form action='upload' enctype="multipart/form-data" method='post'>
-    <input type='file' name='file'/><br/>
-    <input type='submit' value='submit'/>
-    </form>
-  </body>
-</html>
-            ''')
+        self.showList();
+
+    @authenticated
     def post(self):
-        ret = {'result': 'OK'}
+        ret = {'result': 'upload success !'}
         upload_path = '../upload'  # 文件的暂存路径
         file_metas = self.request.files.get('file', None)  # 提取表单中‘name’为‘file’的文件元数据
         if not file_metas:
-            ret['result'] = 'Invalid Args'
+            ret['result'] = 'Invalid Args !'
             return ret
 
         for meta in file_metas:
@@ -73,16 +65,32 @@ class UploadHandler(BaseHandler.BaseHandler):
                 up.write(meta['body'])
                 # OR do other thing
 
-        self.write(json.dumps(ret))
-
-class DownloadHandler(BaseHandler.BaseHandler):
+        self.write(ret['result'])
+        self.showList()
     @authenticated
-    def get(self):
+    def showList(self):
         dir = '../upload'
+        self.write('''
+        <html>
+          <head><title>Upload File</title></head>
+          <body>
+            <form action='download' enctype="multipart/form-data" method='post'>
+            <input type='file' name='file'/>
+            <input type='submit' value='submit'/>
+            </form>
+          </body>
+        </html>
+            ''')
         self.write('<ol>')
         for i in os.walk(dir):
             for k in i[2]:
-                self.write('<li><a href="/download/do?file=%s">%s</a></li>'% (k, k))
+                fsize = os.path.getsize(dir + '/'+k)
+                fsize = fsize/float(1024)
+                if fsize > 1024:
+                    fsize = str(round(fsize/float(1024), 2)) + 'mb'
+                else :
+                    fsize = str(round(fsize, 2)) + 'kb'
+                self.write('<li><a href="/download/do?file=%s">[%s]&nbsp;%s</a>&nbsp;&nbsp;&nbsp;<a href="/download/delete?file=%s">Delete</a></li>'% (k, fsize, k, k))
         self.write('</ol>')
 
 class DownloadDoHandler(BaseHandler.BaseHandler):
@@ -99,3 +107,11 @@ class DownloadDoHandler(BaseHandler.BaseHandler):
                     break
                 self.write(data)
         self.finish()
+
+class DownloadDeleteDoHandler(BaseHandler.BaseHandler):
+    @authenticated
+    def get(self):
+        filename = self.get_argument('file', 'none')
+        dir = '../upload'
+        os.remove(dir+'/'+filename)
+        self.redirect('/download')
