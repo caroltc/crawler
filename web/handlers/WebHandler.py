@@ -86,6 +86,8 @@ class DownloadHandler(BaseHandler.BaseHandler):
             for k in i[2]:
                 if k.startswith('.') or k.startswith('..'):
                     continue
+                if not os.path.exists(dir + '/'+k):
+                    continue
                 fsize = os.path.getsize(dir + '/'+k)
                 fsize = fsize/float(1024)
                 if fsize > 1024:
