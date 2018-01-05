@@ -14,6 +14,7 @@ class BaseScrapy(scrapy.Spider):
     cat_name = ''
     url_keywords = ''
     only_image = 0
+    only_video = 0
     is_ok = 1
 
     def start_requests(self):
@@ -30,6 +31,8 @@ class BaseScrapy(scrapy.Spider):
         self.url_keywords = self.settings.get('URL_KEYWORDS', self.url_keywords)
         self.only_image = self.settings.get('ONLY_IMAGE', self.only_image)
         self.only_image = int(self.only_image)
+        self.only_video = self.settings.get('ONLY_VIDEO', self.only_image)
+        self.only_video = int(self.only_video)
         yield scrapy.Request(self.start_url, callback=self.parse)
 
     def parse(self, response):

@@ -64,7 +64,7 @@ class DownloadMiddleware():
         return None
 
     def process_request(self, request, spider):
-        if spider.url_keywords in request.url:
+        if hasattr(spider, 'url_keywords') and spider.url_keywords in request.url:
             if self.db_handle.check_item_available(request.url):
                 return None
             else:
