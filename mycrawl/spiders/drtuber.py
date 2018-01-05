@@ -30,15 +30,7 @@ class DrtuberScrapy(base.BaseScrapy):
         if next_page:
             return self.host+'/'+next_page[0]
         return None
-
-    def get_page_pub_time(self, response):
-        ptime = response.xpath(u'(//*[@class="tr1"])[1]//*[@class="tipad"]//text()').extract()
-        ptime = ''.join(ptime)
-        ptime = re.findall(r'(\d{4}-\d{2}-\d{2}\s*\d{2}:\d{2})', ptime)
-        if ptime:
-            return ptime[0]
-        return ''
-
+    
     def parse(self, response):
         urls = self.get_item_urls(response)
         for url in urls[:]:

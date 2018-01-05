@@ -99,7 +99,7 @@ class BaseScrapy(scrapy.Spider):
         return []
 
     def get_next_page_url(self, response):
-        return ''
+        return None
 
     def get_next_page_no(self, next_page_url):
         return None

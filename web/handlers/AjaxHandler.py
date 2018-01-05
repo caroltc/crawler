@@ -18,10 +18,12 @@ class ListHandler(BaseHandler.BaseHandler):
         reload(sys)
         sys.setdefaultencoding('utf8')
         keyword = self.get_argument('keyword', 'null')
+        get_content = self.get_argument('get_content', 'N')
+        show_content = True if get_content == 'Y' else False
         if keyword != 'null' and keyword != '':
-            datas = self.db.get_search_list(website, unicode(keyword), start, pagesize)
+            datas = self.db.get_search_list(website, unicode(keyword), start, pagesize, show_content)
         elif cat_id == 'none':
-            datas = self.db.get_collection_list(website, start, pagesize)
+            datas = self.db.get_collection_list(website, start, pagesize, show_content)
         else:
-            datas = self.db.get_list(website, cat_id, start, pagesize)
+            datas = self.db.get_list(website, cat_id, start, pagesize, show_content)
         return self.response_ok(datas)

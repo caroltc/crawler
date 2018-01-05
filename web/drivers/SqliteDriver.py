@@ -16,17 +16,19 @@ class SqliteDriver():
         results = self.cursor.execute("select CAT_ID, CAT_NAME, count(*) from crawl_data where WEBSITE = '%s' group by cat_id" % website).fetchall()
         return self.formatList(['cat_id', 'cat_name', 'num'], results)
 
-    def get_list(self, website, cat_id, start, pagesize):
+    def get_list(self, website, cat_id, start, pagesize, get_content = False):
+        content_field = "'' as CONTENT" if not get_content else "CONTENT"
         count_results = self.cursor.execute("select count(*) from crawl_data where WEBSITE = '%s' and CAT_ID = '%s'" % (website,cat_id)).fetchall()
-        results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK from crawl_data where WEBSITE = '%s' and CAT_ID = '%s' order by crawl_time desc limit %s,%s" % (website,cat_id,start,pagesize)).fetchall()
-        list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok'], results)
+        results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK, %s from crawl_data where WEBSITE = '%s' and CAT_ID = '%s' order by crawl_time desc limit %s,%s" % (content_field, website,cat_id,start,pagesize)).fetchall()
+        list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok', 'content'], results)
         total = count_results[0][0]
         return {"list":list, "total":total}
 
-    def get_search_list(self, website, keyword, start, pagesize):
+    def get_search_list(self, website, keyword, start, pagesize, get_content = False):
+        content_field = "'' as CONTENT" if not get_content else "CONTENT"
         count_results = self.cursor.execute("select count(*) from crawl_data where WEBSITE = '%s' and TITLE like '%s'" % (website,'%'+keyword+'%')).fetchall()
-        results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK from crawl_data where WEBSITE = '%s' and TITLE like '%s' order by crawl_time desc limit %s,%s" % (website,'%'+keyword+'%',start,pagesize)).fetchall()
-        list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok'], results)
+        results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK, %s from crawl_data where WEBSITE = '%s' and TITLE like '%s' order by crawl_time desc limit %s,%s" % (content_field, website,'%'+keyword+'%',start,pagesize)).fetchall()
+        list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok', 'content'], results)
         total = count_results[0][0]
         return {"list":list, "total":total}
 
@@ -47,7 +49,8 @@ class SqliteDriver():
 
         return True
 
-    def get_collection_list(self, website, start, pagesize):
+    def get_collection_list(self, website, start, pagesize, get_content = False):
+        content_field = "'' as CONTENT" if not get_content else "CONTENT"
         count_results = self.cursor.execute("select count(*) from collection where WEBSITE = '%s'" % website).fetchall()
         ids_result = self.cursor.execute("select ID from collection where WEBSITE = '%s' order by ID desc limit %s,%s" % (website,start,pagesize)).fetchall()
         ids_list = []
@@ -55,8 +58,8 @@ class SqliteDriver():
         if ids_result:
             for i in range(len(ids_result)):
                 ids_list.append(str(ids_result[i][0]))
-            results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK from crawl_data where ID IN ('%s')" % ','.join(ids_list)).fetchall()
-            list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok'], results)
+            results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK, %s from crawl_data where ID IN ('%s')" % (content_field, ','.join(ids_list))).fetchall()
+            list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok', 'content'], results)
         total = count_results[0][0]
         return {"list":list, "total":total}
 

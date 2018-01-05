@@ -84,6 +84,9 @@
     .item-detail {
       color: #ccc;
     }
+    .crawl_video_list video {
+      width:100%; height:18rem;
+    }
   </style>
 </head>
 <body>
@@ -104,7 +107,7 @@
     </div>
     <div>
       <table class="gridtable">
-        <tbody>
+        <tbody v-if="!show_video_list">
             <tr v-for="(item,index) in data_list">
                 <td>
                   <p class="item-title"><a :href="urls.detail_url.replace('%url_hash', item.url_hash)" target="_blank"><% (current_page-1)*page_size+index+1 %>.<% item.title %></a></p>
@@ -115,8 +118,21 @@
                 </td>
             </tr>          
         </tbody>
+        <tbody v-if="show_video_list">
+            <tr>
+                <td style="padding:0;">
+                <div v-for="(item,index) in data_list" style="width:100%; margin:0; margin-bottom: 20px; text-align:center;">
+                  <p style="margin-left: auto; margin-right: auto; max-width: 480px;" class="crawl_video_list">
+                  <video :src="item.url" :poster="getPoster(item.content)" controls="controls"></video>
+                  <span style=" text-align:left;color:#777; display:block;">[<% item.pub_time %>][<% item.cat_name %>]<% item.title %></span>
+                  </p>
+                </div>
+                </td>
+            </tr>          
+        </tbody>
         <tfoot>
             <tr v-if="data_num === 0 && !is_loading"><td style="text-align: center">No results!</td></tr>
+            <tr v-if="data_num > 0 && !is_loading"><td style="text-align: center; height:50px; color: #777777; "><span style="display:block;" @click="switchViewMode()">Switch View Mode</span></td></tr>
             <tr v-if="is_loading"><td style="text-align: center">loading...</td></tr>
             <tr v-if="total_pages > 1"><td id="page_break">
                 <button class="pre_page" @click="jumpPage(current_page-1)">Pre Page</button>
@@ -135,7 +151,7 @@
         urls:{
           get_website:'/ajaxGetWebsite',
           get_cat:'/ajaxGetCat/%website',
-          get_list:'/ajaxGetList/%website/%cat_id/%start/%pagesize?keyword=%keyword',
+          get_list:'/ajaxGetList/%website/%cat_id/%start/%pagesize?keyword=%keyword&get_content=%get_content',
           detail_url:'/showDetail/%url_hash',
         },
         websites:[],
@@ -149,7 +165,8 @@
         total_pages:0,
         show_pages:[],
         search_keyword:'',
-        is_loading:false
+        is_loading:false,
+        show_video_list:false
       },
       mounted: function(){
         var _this = this;
@@ -177,7 +194,7 @@
                 this.current_page = 1;
               }
               var start = (this.current_page - 1) * this.page_size;
-              this.ajaxGet(this.urls.get_list.replace('%website', this.select_website).replace('%cat_id', this.select_cat).replace('%start', start).replace('%pagesize', this.page_size).replace('%keyword', this.search_keyword),{}, function(data){
+              this.ajaxGet(this.urls.get_list.replace('%website', this.select_website).replace('%cat_id', this.select_cat).replace('%start', start).replace('%pagesize', this.page_size).replace('%keyword', this.search_keyword).replace('%get_content', (this.show_video_list?'Y':'N')),{}, function(data){
                   _this.data_list = data.result.list;
                   _this.data_num = data.result.total;
                   _this.getPages();
@@ -258,6 +275,15 @@
                     callback(data);
                 }
               });
+          },
+          switchViewMode: function(){
+              this.show_video_list = (this.show_video_list === true ? false : true);
+              this.getList(false);
+          },
+          getPoster: function(content) {
+            var b=/poster=\"([^\"]*?)\"/gi
+            content.match(b)
+            return RegExp.$1;
           }
       },
       watch: {
