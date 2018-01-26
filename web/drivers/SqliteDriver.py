@@ -19,8 +19,8 @@ class SqliteDriver():
     def get_list(self, website, cat_id, start, pagesize, get_content = False):
         content_field = "'' as CONTENT" if not get_content else "CONTENT"
         count_results = self.cursor.execute("select count(*) from crawl_data where WEBSITE = '%s' and CAT_ID = '%s'" % (website,cat_id)).fetchall()
-        results = self.cursor.execute("select WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK, %s from crawl_data where WEBSITE = '%s' and CAT_ID = '%s' order by crawl_time desc limit %s,%s" % (content_field, website,cat_id,start,pagesize)).fetchall()
-        list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok', 'content'], results)
+        results = self.cursor.execute("select ID, WEBSITE, URL_HASH, CAT_ID, CAT_NAME, TITLE, PUB_TIME, CRAWL_TIME, IS_OK, %s from crawl_data where WEBSITE = '%s' and CAT_ID = '%s' order by crawl_time desc limit %s,%s" % (content_field, website,cat_id,start,pagesize)).fetchall()
+        list = self.formatList(['id', 'website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok', 'content'], results)
         total = count_results[0][0]
         return {"list":list, "total":total}
 
@@ -46,7 +46,6 @@ class SqliteDriver():
             return False
         self.cursor.execute("INSERT INTO collection(DATA_ID, WEBSITE, CAT_ID) VALUES('%s', '%s', '%s')" % (str(data_id), website, cat_id))
         self.conn.commit()
-
         return True
 
     def get_collection_list(self, website, start, pagesize, get_content = False):
@@ -62,6 +61,10 @@ class SqliteDriver():
             list = self.formatList(['website', 'url_hash', 'cat_id', 'cat_name', 'title', 'pub_time', 'crawl_time', 'is_ok', 'content'], results)
         total = count_results[0][0]
         return {"list":list, "total":total}
+
+    def delete_data(self, ids):
+        self.cursor.execute("delete from crawl_data where ID IN (%s)" % ",".join(map(str, ids)))
+        return True
 
     def formatList(self, fields, results):
         if results:

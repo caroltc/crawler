@@ -113,7 +113,7 @@
                   <p class="item-title"><a :href="urls.detail_url.replace('%url_hash', item.url_hash)" target="_blank"><% (current_page-1)*page_size+index+1 %>.<% item.title %></a></p>
                   <p class="item-detail">
                     <span style="float:left"><% item.cat_name %> <% item.pub_time %></span>
-                    <span style="float:right"><% item.crawl_time %><% item.is_ok == 1 ? 'Y' : 'N' %><span>
+                    <span style="float:right"><% item.crawl_time %><% item.is_ok == 1 ? 'Y' : 'N' %><input type="checkbox" :value="item.id" v-model="select_datas"><span>
                   </p>
                 </td>
             </tr>          
@@ -132,6 +132,7 @@
         </tbody>
         <tfoot>
             <tr v-if="data_num === 0 && !is_loading"><td style="text-align: center">No results!</td></tr>
+            <tr v-if="data_num > 0 && !is_loading"><td style="text-align: center; height:50px; color: #777777; "><span style="display:block;" @click="deleteData()">Delete Data</span></td></tr>
             <tr v-if="data_num > 0 && !is_loading"><td style="text-align: center; height:50px; color: #777777; "><span style="display:block;" @click="switchViewMode()">Switch View Mode</span></td></tr>
             <tr v-if="is_loading"><td style="text-align: center">loading...</td></tr>
             <tr v-if="total_pages > 1"><td id="page_break">
@@ -153,6 +154,7 @@
           get_cat:'/ajaxGetCat/%website',
           get_list:'/ajaxGetList/%website/%cat_id/%start/%pagesize?keyword=%keyword&get_content=%get_content',
           detail_url:'/showDetail/%url_hash',
+          delete_data:'/ajaxDeleteData',
         },
         websites:[],
         select_website:'',
@@ -166,7 +168,8 @@
         show_pages:[],
         search_keyword:'',
         is_loading:false,
-        show_video_list:false
+        show_video_list:false,
+        select_datas:[]
       },
       mounted: function(){
         var _this = this;
@@ -284,6 +287,15 @@
             var b=/poster=\"([^\"]*?)\"/gi
             content.match(b)
             return RegExp.$1;
+          },
+          deleteData: function() {
+            if (this.select_datas.length < 1) {
+              return false;
+            }
+            var _this = this;
+            this.ajaxPost(this.urls.delete_data, {ids:this.select_datas}, function(){
+                _this.getList(false);
+            });
           }
       },
       watch: {

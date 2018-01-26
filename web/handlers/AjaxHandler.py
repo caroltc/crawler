@@ -2,18 +2,23 @@
 #-*- coding: utf-8 -*-
 import BaseHandler
 import sys
+import json
+from tornado.web import authenticated
 
 class WebsiteHandler(BaseHandler.BaseHandler):
+    @authenticated
     def get(self):
         datas = self.db.get_website()
         return self.response_ok(datas)
 
 class CatHandler(BaseHandler.BaseHandler):
+    @authenticated
     def get(self, website):
         datas = self.db.get_cat(website)
         return self.response_ok(datas)
 
 class ListHandler(BaseHandler.BaseHandler):
+    @authenticated
     def get(self, website, cat_id, start, pagesize):
         reload(sys)
         sys.setdefaultencoding('utf8')
@@ -27,3 +32,11 @@ class ListHandler(BaseHandler.BaseHandler):
         else:
             datas = self.db.get_list(website, cat_id, start, pagesize, show_content)
         return self.response_ok(datas)
+
+class DeleteDataHandler(BaseHandler.BaseHandler):
+    @authenticated
+    def post(self):
+        param = self.request.body.decode('utf-8')
+        prarm = json.loads(param)
+        self.db.delete_data(prarm['ids'])
+        return self.response_ok()
