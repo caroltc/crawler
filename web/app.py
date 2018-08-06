@@ -21,6 +21,7 @@ def make_app():
     (r"/download", DownloadHandler, dict(db=db)),
     (r"/download/do", DownloadDoHandler, dict(db=db)),
     (r"/download/delete", DownloadDeleteDoHandler, dict(db=db)),
+    (r"/ajaxDeleteData", DeleteDataHandler, dict(db=db)),
     (r"/login", LoginHandler, dict(db=db)),
     ]
     config = {"template_path":settings.TEMPLATE_PATH, "static_path":settings.ASSETS_PATH, "cookie_secret":settings.COOKIE_SECRET, "login_url": "/login", "debug":True}

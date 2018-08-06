@@ -19,6 +19,7 @@ class DetailHandler(BaseHandler.BaseHandler):
         if len(datas) == 0:
             self.write('None')
         else:
+	    datas['content'] = datas['content'].replace('data-src', 'src')
             self.render('detail.html', **datas)
 
 class LoginHandler(BaseHandler.BaseHandler):
