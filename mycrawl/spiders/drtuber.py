@@ -7,10 +7,10 @@ import json
 from mycrawl.items import MycrawlItem
 
 class DrtuberScrapy(base.BaseScrapy):
-    name = "drtuber"
-    host = "https://www.drtuber.com"
+    name = ""
+    host = ""
     start_url = "/asian"
-    cat_id = 'asian'
+    cat_id = ''
     cat_name = 'asian'
     url_keywords = '.mp4'
     v_keywords = '/video/'
