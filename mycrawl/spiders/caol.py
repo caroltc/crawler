@@ -5,12 +5,12 @@ import re
 import scrapy
 
 class CaolScrapy(base.BaseScrapy):
-    name = "caol"
-    host = "http://t66y.com"
-    start_url = "/thread0806.php?fid=7&search=&page=1"
+    name = ""
+    host = ""
+    start_url = ""
     cat_id = '7'
-    cat_name = '技术讨论区'
-    url_keywords = 'htm_data'
+    cat_name = ''
+    url_keywords = ''
 
     def get_item_urls(self, response):
         urls = response.xpath(u'//*[contains(@class, "tr3 t_one")]//h3//@href').extract()
